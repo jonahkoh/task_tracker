@@ -39,16 +39,6 @@ export default function Index() {
     fetchTasks();
   },[]);    //an empty dependency array --> only runs once when the component mounts
 
-  //function to add task
-  const handleAddTask = async () => {
-    if (taskTitle.trim() && taskSubtext.trim()) {
-      const newTask = { title: taskTitle, subtext: taskSubtext };
-      await storeData(taskTitle,taskSubtext);       //store data 
-      setTaskItems([...taskItems, newTask]);       //add to state
-      setTaskTitle('');       //reset input
-      setTaskSubtext('');
-    }
-  }
   const completeTask = async (index:number, title:string) => {
     try {
       await AsyncStorage.removeItem(title);  //remove from storage
@@ -78,36 +68,6 @@ export default function Index() {
         </View>
       </View>
       </ScrollView>
-      {/* Task Input Section */}
-      <KeyboardAvoidingView 
-        behavior={Platform.OS == 'ios' ? 'padding': 'height'}   //? If not ios, wants sth else
-                                                              //or else changed the height.
-      style={styles.writeTaskWrapper}                           
-      >          
-
-      {/* Input for Task Title */}                                               
-      <TextInput 
-        style={styles.input}
-        placeholder={'Enter Task Title'} 
-        value={taskTitle} 
-        onChangeText={text => setTaskTitle(text)}
-      /> 
-
-      {/* Input for Due Date */}                                               
-      <TextInput 
-          style={styles.input}
-          placeholder={'Enter Due Date'} 
-          value={taskSubtext} 
-          onChangeText={text => setTaskSubtext(text)}
-      /> 
-
-      {/* Add Button */} 
-      <TouchableOpacity onPress={() => handleAddTask()}>   {/*prevents virtual keyboard blocking by pushing items up*/}                                      
-        <View style={styles.addWrapper}>
-          <Text style={styles.addText}>+</Text>
-        </View>
-      </TouchableOpacity>
-      </KeyboardAvoidingView>
     </View>
     );
   }
