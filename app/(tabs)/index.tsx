@@ -1,0 +1,172 @@
+import { Text, View, StyleSheet, ScrollView, KeyboardAvoidingView, TextInput, Platform, TouchableOpacity } from 'react-native';
+import Task from '@/components/Task';
+import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const storeData = async (title:string,dueDate:string) => {
+  try {
+    await AsyncStorage.setItem(title,dueDate);
+    console.log('Task saved successfully');
+  } catch (e) {
+    console.error('Error saving task:', e)
+  }
+};
+
+const getAllTasks = async () => {
+  try {
+    const keys = await AsyncStorage.getAllKeys(); //get all the title from storage
+    const result = await AsyncStorage.multiGet(keys); //get all the due dates
+    return result.map(([title,subtext]) => ({ title, subtext}));
+  } catch (e) {
+    console.error('Error retrieving task: ', e);
+    return [];
+  }
+};
+
+export default function Index() {
+  //state to manage input values and task list
+  const [taskTitle, setTaskTitle] = useState<String>('');             //track title input
+  const [taskSubtext, setTaskSubtext] = useState<String>('');        //track due date input
+  const [taskItems, setTaskItems] = useState<{title:string;subtext:string}[]>([]);
+  
+  //load tasks from Async 
+  useEffect(() =>{
+    const fetchTasks = async () => {
+      const storedTasks = await getAllTasks();
+      setTaskItems(storedTasks);
+    };
+
+    fetchTasks();
+  },[]);    //an empty dependency array --> only runs once when the component mounts
+
+  //function to add task
+  const handleAddTask = async () => {
+    if (taskTitle.trim() && taskSubtext.trim()) {
+      const newTask = { title: taskTitle, subtext: taskSubtext };
+      await storeData(taskTitle,taskSubtext);       //store data 
+      setTaskItems([...taskItems, newTask]);       //add to state
+      setTaskTitle('');       //reset input
+      setTaskSubtext('');
+    }
+  }
+  const completeTask = async (index:number, title:string) => {
+    try {
+      await AsyncStorage.removeItem(title);  //remove from storage
+      let itemsCopy = [...taskItems];   //copy current array of task
+      itemsCopy.splice(index,1);       //remove the task we click on
+      setTaskItems(itemsCopy);        //update the array
+    } catch (e) {
+      console.error('Error deleting task:', e)
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      {/* Today's Task */}
+      <Text style={styles.title}>Task List</Text>
+      <ScrollView style={styles.scrollView}>
+      <View style={styles.Wrapper}>
+        <View style={styles.taskContainer}>
+          {
+            taskItems.map((item,index) => (
+                <TouchableOpacity key={index} onPress={() => completeTask(index,item.title)}>
+                  <Task title={item.title} subtext={item.subtext}/>
+                </TouchableOpacity>
+              ))
+          }
+         
+        </View>
+      </View>
+      </ScrollView>
+      {/* Task Input Section */}
+      <KeyboardAvoidingView 
+        behavior={Platform.OS == 'ios' ? 'padding': 'height'}   //? If not ios, wants sth else
+                                                              //or else changed the height.
+      style={styles.writeTaskWrapper}                           
+      >          
+
+      {/* Input for Task Title */}                                               
+      <TextInput 
+        style={styles.input}
+        placeholder={'Enter Task Title'} 
+        value={taskTitle} 
+        onChangeText={text => setTaskTitle(text)}
+      /> 
+
+      {/* Input for Due Date */}                                               
+      <TextInput 
+          style={styles.input}
+          placeholder={'Enter Due Date'} 
+          value={taskSubtext} 
+          onChangeText={text => setTaskSubtext(text)}
+      /> 
+
+      {/* Add Button */} 
+      <TouchableOpacity onPress={() => handleAddTask()}>   {/*prevents virtual keyboard blocking by pushing items up*/}                                      
+        <View style={styles.addWrapper}>
+          <Text style={styles.addText}>+</Text>
+        </View>
+      </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </View>
+    );
+  }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#D3D3D3',
+    alignItems: 'center',
+  },
+  Wrapper: {
+  },
+  title:{
+    fontWeight: 'bold',
+    fontSize: 30,
+    textAlign: 'center',
+    paddingBottom: 10,
+  },
+  text: {
+    color: '#fff',
+  },
+  scrollView:{
+    flexGrow: 1,      //Can scroll if content exceeds screen
+    marginBottom: 130,
+  },
+  taskContainer: {
+    flex: 1,
+    width: 500,
+  },
+  writeTaskWrapper: {
+    position: 'absolute', //Able to place it anyway we want on the screen
+    bottom: 60,
+    left: 100,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',    //push textbar right, + icon left
+    alignItems: 'center',
+  },                                     
+  input:{
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    backgroundColor: '#FFF',
+    borderRadius: 60,
+    borderColor: '#C0C0C0',
+    borderWidth: 1,
+    width: 250,
+  },
+  addWrapper:{
+    marginRight: 200,
+    width: 60,
+    height: 60,
+    backgroundColor: '#FFF',
+    borderRadius: 60,
+    borderColor: '#C0C0C0',
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addText:{
+    
+  },
+});
