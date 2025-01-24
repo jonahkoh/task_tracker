@@ -25,4 +25,3 @@ React Native - For building the mobile app interface.
 TypeScript - For type safety and better code structure.
 AsyncStorage - To store and retrieve tasks offline.
 Expo CLI - For fast development and testing.
-asdsdasd
