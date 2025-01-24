@@ -18,6 +18,11 @@ An offline task management mobile app built with **React Native** and **TypeScri
    git clone https://github.com/jonahkoh/task_tracker.git
    cd task-tracker
    ```
+2. Install expo:
+
+   ```bash
+   npx expo install
+   ```
 
 ## Technologies Used
 
