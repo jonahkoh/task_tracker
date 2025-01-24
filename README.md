@@ -16,7 +16,7 @@ An offline task management mobile app built with **React Native** and **TypeScri
 
    ```bash
    git clone https://github.com/jonahkoh/task_tracker.git
-   cd offline-task-tracker
+   cd task-tracker
    ```
 
 ## Technologies Used
