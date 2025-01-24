@@ -1,16 +1,7 @@
-import { Text, View, StyleSheet, ScrollView, KeyboardAvoidingView, TextInput, Platform, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import Task from '@/components/Task';
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const storeData = async (title:string,dueDate:string) => {
-  try {
-    await AsyncStorage.setItem(title,dueDate);
-    console.log('Task saved successfully');
-  } catch (e) {
-    console.error('Error saving task:', e)
-  }
-};
 
 const getAllTasks = async () => {
   try {
@@ -25,8 +16,6 @@ const getAllTasks = async () => {
 
 export default function Index() {
   //state to manage input values and task list
-  const [taskTitle, setTaskTitle] = useState<String>('');             //track title input
-  const [taskSubtext, setTaskSubtext] = useState<String>('');        //track due date input
   const [taskItems, setTaskItems] = useState<{title:string;subtext:string}[]>([]);
   
   //load tasks from Async 
@@ -106,15 +95,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',    //push textbar right, + icon left
     alignItems: 'center',
   },                                     
-  input:{
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-    backgroundColor: '#FFF',
-    borderRadius: 60,
-    borderColor: '#C0C0C0',
-    borderWidth: 1,
-    width: 250,
-  },
   addWrapper:{
     marginRight: 200,
     width: 60,
